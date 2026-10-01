@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Oráculo del Árbol Familiar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root {
+  color-scheme: dark;
+  --noche: #08201f;
+  --noche-2: #0d3330;
+  --esmeralda: #1f6b5a;
+  --rosa: #c2305a;
+  --oliva: #7a6a2e;
+  --luz: #f0e68c;
+  --estrella: #e9f3ee;
+  --texto-suave: #b9cfc7;
+  --peldano-1: #d4476d;
+  --peldano-2: #c99a2e;
+  --peldano-3: #2f9e8a;
+  --peldano-4: #f0e68c;
+  --serif: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --mono: "DM Mono", ui-monospace, "Courier New", monospace;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  margin: 0;
+  background:
+    radial-gradient(ellipse at 50% 38%, rgba(240,230,140,.10), transparent 45%),
+    radial-gradient(ellipse at 50% 0%, #11463f 0%, var(--noche) 55%, #04100f 100%);
+  background-color: var(--noche);
+  background-attachment: fixed;
+  color: var(--estrella);
+  font-family: var(--serif);
+  font-size: 1.2rem;
+  line-height: 1.55;
+  min-height: 100vh;
+}
+.estrellas { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+main { position: relative; z-index: 1; max-width: 980px; margin: 0 auto; padding: 28px 18px 60px; }
+
+header { text-align: center; margin-bottom: 26px; }
+h1 {
+  font-family: var(--mono);
+  font-weight: 300;
+  font-size: clamp(1.5rem, 5.2vw, 2.5rem);
+  letter-spacing: .14em;
+  margin: 8px 0 6px;
+  color: var(--estrella);
+}
+.sub { color: var(--luz); font-family: var(--mono); font-size: .85rem; letter-spacing: .12em; }
+.lema { font-style: italic; color: var(--texto-suave); margin: 14px auto 0; max-width: 34em; }
+
+.selector { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 24px 0 10px; }
+.selector button {
+  font: inherit; font-size: 1.05rem; cursor: pointer;
+  background: transparent; color: var(--texto-suave);
+  border: 1px solid rgba(240,230,140,.28); border-radius: 999px;
+  padding: 8px 18px;
+}
+.selector button:hover { border-color: var(--luz); color: var(--estrella); }
+.selector button[aria-pressed="true"] { background: var(--luz); color: #1d2a12; border-color: var(--luz); font-weight: 600; }
+button:focus-visible { outline: 2px solid var(--luz); outline-offset: 3px; }
+
+.descripcion { text-align: center; max-width: 36em; margin: 0 auto 8px; color: var(--texto-suave); }
+
+details.ritual {
+  max-width: 36em; margin: 14px auto 0;
+  border: 1px solid rgba(240,230,140,.2); border-radius: 12px; padding: 10px 16px;
+  background: rgba(8,32,31,.55);
+}
+details.ritual summary { cursor: pointer; color: var(--luz); }
+details.ritual ol { margin: 10px 0 4px; padding-left: 1.3em; color: var(--texto-suave); }
+
+.mesa {
+  margin: 30px 0 18px;
+  padding: 28px 10px 22px;
+  border-radius: 18px;
+  border: 1px solid rgba(240,230,140,.35);
+  background: radial-gradient(ellipse at 50% 50%, rgba(240,230,140,.12), rgba(13,51,48,.6) 60%);
+  display: flex; flex-direction: column; gap: 26px; align-items: center;
+}
+.fila { display: flex; gap: clamp(10px, 3vw, 28px); justify-content: center; }
+.hueco { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.etiqueta { font-family: var(--mono); font-size: .78rem; color: var(--luz); text-align: center; max-width: 150px; line-height: 1.3; }
+
+.carta { width: clamp(92px, 26vw, 156px); aspect-ratio: 5 / 8; perspective: 900px; background: none; border: 0; padding: 0; cursor: default; }
+.carta-int { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform .9s cubic-bezier(.3,.7,.2,1); }
+.carta.volteada .carta-int { transform: rotateY(180deg); }
+.cara { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 10px; overflow: hidden; border: 2px solid var(--luz); }
+.dorso {
+  background:
+    radial-gradient(circle at 50% 55%, rgba(240,230,140,.55), transparent 32%),
+    linear-gradient(180deg, #0a2a33, #0f4a43 60%, #0a2a33);
+  display: grid; place-items: center;
+}
+.dorso svg { width: 82%; height: 82%; }
+.frente { transform: rotateY(180deg); background: var(--oliva); display: flex; flex-direction: column; }
+.arte { flex: 1; position: relative; display: grid; place-items: center; background: linear-gradient(180deg, #0b2f35, #14594c); }
+.arte img { width: 100%; height: 100%; object-fit: cover; }
+.arte .glifo { font-size: clamp(2rem, 8vw, 3.4rem); filter: drop-shadow(0 0 14px rgba(240,230,140,.6)); }
+.arte .num { position: absolute; top: 6px; left: 8px; font-family: var(--mono); font-size: .75rem; color: var(--luz); }
+.pie { background: var(--oliva); color: var(--estrella); text-align: center; font-family: var(--mono); font-size: clamp(.58rem, 1.9vw, .78rem); letter-spacing: .04em; padding: 7px 4px; line-height: 1.2; }
+.carta[data-peldano="1"] .arte { box-shadow: inset 0 -26px 30px -18px var(--peldano-1); }
+.carta[data-peldano="2"] .arte { box-shadow: inset 0 -26px 30px -18px var(--peldano-2); }
+.carta[data-peldano="3"] .arte { box-shadow: inset 0 -26px 30px -18px var(--peldano-3); }
+.carta[data-peldano="4"] .arte { box-shadow: inset 0 -26px 30px -18px var(--peldano-4); }
+
+.acciones { text-align: center; margin: 8px 0 30px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.btn-sacar {
+  font-family: var(--mono); font-size: 1rem; letter-spacing: .08em; cursor: pointer;
+  color: #1d2a12; background: var(--luz); border: 0; border-radius: 999px; padding: 14px 34px;
+  box-shadow: 0 0 28px rgba(240,230,140,.35);
+}
+.btn-sacar:hover { box-shadow: 0 0 40px rgba(240,230,140,.6); }
+.btn-sacar:disabled { opacity: .6; cursor: wait; box-shadow: none; }
+.nota { color: var(--texto-suave); font-size: 1rem; font-style: italic; margin: 0; }
+
+.lectura { display: none; }
+.lectura.visible { display: block; animation: aparece .8s ease both; }
+@keyframes aparece { from { opacity: 0; } to { opacity: 1; } }
+.bloque {
+  border-left: 3px solid var(--luz);
+  background: rgba(8,32,31,.7);
+  border-radius: 0 12px 12px 0;
+  padding: 16px 20px 18px;
+  margin: 0 0 18px;
+}
+.bloque[data-peldano="1"] { border-left-color: var(--peldano-1); }
+.bloque[data-peldano="2"] { border-left-color: var(--peldano-2); }
+.bloque[data-peldano="3"] { border-left-color: var(--peldano-3); }
+.bloque[data-peldano="4"] { border-left-color: var(--peldano-4); }
+.bloque .posicion { font-family: var(--mono); font-size: .8rem; color: var(--luz); margin: 0 0 2px; }
+.bloque h2 { font-size: 1.7rem; font-weight: 600; margin: 0 0 2px; }
+.bloque .peldano { font-style: italic; color: var(--texto-suave); margin: 0 0 10px; }
+.bloque p { margin: 0 0 10px; max-width: 42em; }
+.bloque .guia { color: var(--luz); font-style: italic; }
+.bloque ul { margin: 6px 0 0; padding-left: 1.2em; color: var(--texto-suave); max-width: 42em; }
+.bloque li { margin-bottom: 4px; }
+.cuidado { font-size: 1rem; border: 1px dashed rgba(240,230,140,.45); border-radius: 8px; padding: 8px 12px; color: var(--texto-suave); }
+.cierre { text-align: center; margin: 24px auto 0; max-width: 34em; font-style: italic; color: var(--luz); }
+
+footer { margin-top: 44px; font-size: .95rem; color: var(--texto-suave); text-align: center; max-width: 44em; margin-left: auto; margin-right: auto; }
+footer p { margin: 0 0 8px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .carta-int { transition-duration: .01s; }
+  .lectura.visible { animation: none; }
+}
+</style>
+</head>
+<body>
+<canvas class="estrellas" id="estrellas" aria-hidden="true"></canvas>
+<main>
+  <header>
+    <div class="sub">Fen José · Paloma Pavez</div>
+    <h1>Oráculo del Árbol Familiar</h1>
+    <p class="lema">Un puente entre tú y tu Alma Tribal. Elige una tirada, respira y deja que tus ancestras y ancestros te hablen.</p>
+  </header>
+
+  <nav class="selector" id="selector" aria-label="Tiradas"></nav>
+  <p class="descripcion" id="descripcion"></p>
+
+  <details class="ritual">
+    <summary>Antes de empezar</summary>
+    <ol>
+      <li>Presenta a tu familia: di quién eres y qué te trae hoy.</li>
+      <li>Respira profundo tres veces.</li>
+      <li>Pide a tus ancestros un mensaje sobre lo que quieres ver o trabajar.</li>
+      <li>Pulsa el botón y observa cada carta antes de leer su interpretación.</li>
+      <li>Al terminar, agradece a tu familia, a tu clan, a tu árbol y a ti.</li>
+    </ol>
+  </details>
+
+  <section class="mesa" id="mesa" aria-live="polite"></section>
+
+  <div class="acciones">
+    <button class="btn-sacar" id="btnSacar">Sacar cartas</button>
+    <p class="nota" id="nota"></p>
+  </div>
+
+  <section class="lectura" id="lectura" aria-label="Interpretación"></section>
+
+  <footer>
+    <p>Basado en el Oráculo del Árbol Familiar, creado e ilustrado por Fen José, con textos de Paloma Pavez Riquelme. Las interpretaciones de esta app son resúmenes breves para orientar la reflexión; el mazo y su libro completo pertenecen a sus autoras.</p>
+    <p>Este oráculo es una herramienta de reflexión personal y no reemplaza el acompañamiento de un profesional de la salud o de la terapia.</p>
+  </footer>
+</main>
+
+<script>
+/* ============ Imágenes de las cartas ============
+   Para mostrar las ilustraciones, agrega aquí data URIs o rutas por número de carta:
+   CARD_IMAGES[3] = "data:image/jpeg;base64,...."
+   (Solo con permiso de la autora.) */
+const CARD_IMAGES = {};
+
+const PELDANOS = {
+  1: { nombre: "1º Peldaño · La Base", glifo: "🌱" },
+  2: { nombre: "2º Peldaño · El Conflicto", glifo: "🥀" },
+  3: { nombre: "3º Peldaño · El Trabajo", glifo: "🌿" },
+  4: { nombre: "4º Peldaño · Luz", glifo: "✨" }
+};
+
+const CUIDADO_DUELO = "Si este tema te sobrepasa o sientes mucho cansancio o tristeza, busca acompañamiento profesional o de una persona de confianza.";
+const CUIDADO_ABUSO = "Si hoy vives o viviste una situación de abuso, no la trabajes sola/o: busca el apoyo de un profesional o de una red de ayuda.";
+
+/* Interpretaciones resumidas con palabras propias a partir del libro del oráculo. */
+const CARTAS = [
+  { n:1, nombre:"Unión de clanes", p:1,
+    texto:"El amor que nos une al clan no siempre es luminoso: a veces es lealtad ciega a repetir el destino familiar para seguir perteneciendo. Por eso, al elegir pareja, también se suman las historias de ambos árboles. Conocer tu pasado te ayuda a ocupar tu lugar y a que el amor muestre su lado luminoso.",
+    preguntas:["¿Qué patrón de tu familia podrías estar repitiendo en tus vínculos?","¿Qué estás dispuesta/o a sacrificar para seguir perteneciendo?"] },
+  { n:2, nombre:"Familia nuclear", p:1,
+    texto:"Es la semilla de todo: madre y padre te dieron la vida, más allá de cómo sea su relación entre ellos o contigo. Haber dicho sí a la vida es el primer acto de apertura. Darles un espacio en el corazón es el primer paso hacia una libertad real.",
+    preguntas:["¿Qué sientes que heredaste, consciente o inconscientemente, de ambos?","¿Hay algo en la relación de tus padres que aún te duela?"] },
+  { n:3, nombre:"Madre", p:1,
+    texto:"El vínculo materno es el primario: la madre es la Vida. Tomar a mamá, tal como es y como ser humano completo, es tomar la vida. Si otra persona te crió, ella cumple un rol valioso, pero la madre biológica conserva su lugar. Agradecer y aceptar libera el flujo vital.",
+    preguntas:["¿Cómo fue tu gestación y tus primeros años?","¿Cómo ha sido tu relación con tu madre a lo largo de la vida?","¿Cómo cuidas y nutres lo que creas (hijos, proyectos)?"] },
+  { n:4, nombre:"Padre", p:1,
+    texto:"El padre aporta fuerza y voluntad para ir hacia el mundo, y ayuda a separarse de la fusión con la madre para construir autonomía e identidad. Se lo toma a través de la madre, que da el permiso. Honrar a tu linaje paterno, aunque la historia sea difícil, te da impulso para florecer.",
+    preguntas:["¿Cómo es o fue tu relación con tu padre y su linaje?","¿Tienes fuerza para emprender tus proyectos?","¿Cómo te paras frente al mundo?"] },
+  { n:5, nombre:"Proyecto sentido", p:1,
+    texto:"Lo que vivieron y esperaban tus padres antes de la concepción, durante el embarazo y en tus primeros años te tiñe como una paleta de colores base. No te define por completo, pero deja una huella. Conocer ese contexto te permite distinguir qué es tuyo y qué fue proyectado sobre ti.",
+    preguntas:["¿Eras esperada/o? ¿Cómo se recibió la noticia?","¿En qué contexto social, económico y emocional fuiste gestada/o?","¿Cuán cómoda/o y agradecida/o estás con la vida?"] },
+  { n:6, nombre:"Hija/o deseado", p:1,
+    texto:"Nacer de un amor sano regala la sensación de merecer la vida. Pero un hijo planificado no es siempre un hijo del amor: el deseo de ser madre o padre puede venir de un mandato, de una pérdida ajena o de la presión por la edad. Vale revisar de quién es realmente ese deseo.",
+    preguntas:["¿De dónde nace tu anhelo de ser madre o padre?","Si ya lo eres: ¿tus hijas/os se sienten libres de expresarse y de ser contenidos?"] },
+  { n:7, nombre:"Hijo no planificado", p:1,
+    texto:"No haber sido planificado no significa no haber sido amado: muchas veces la sorpresa se recibe con alegría. Aun así, conviene conocer las circunstancias de tu concepción y gestación para entender mejor tu punto de partida.",
+    preguntas:["¿Qué sabes de cómo llegaste al mundo?","Si eres madre o padre: ¿gozas tu maternidad/paternidad o se siente como un peso?"] },
+  { n:8, nombre:"Pérdidas / Abortos", p:1,
+    texto:"Las pérdidas, voluntarias o involuntarias, suelen vivirse en soledad y con culpa, y dejan huella en quien las vivió y en quienes vienen después. Dar espacio al dolor, la culpa o el alivio, y darle un lugar en la familia a quien partió, ordena el árbol y evita que alguien más lo cargue.",
+    preguntas:["¿Hubo pérdidas o abortos en tu árbol? ¿Cómo se vivieron?","¿Le has dado un lugar o un ritual a esa alma?"],
+    cuidado: CUIDADO_DUELO },
+  { n:9, nombre:"Hermanos/as", p:1,
+    texto:"La hermandad enseña a compartir, a resolver diferencias y a encontrar tu lugar. Los mitos fundacionales, como Caín y Abel, tiñen la experiencia con celos y conflicto. Tu forma de relacionarte con tus semejantes refleja los temas pendientes con tus hermanos.",
+    preguntas:["¿Cuál es tu lugar en la hermandad?","¿Cómo es la hermandad en tu árbol?"] },
+  { n:10, nombre:"Abuelos/as", p:1,
+    texto:"Los abuelos nos muestran nuestros orígenes y transmiten rituales, valores y creencias. Hacen visible que tus padres también fueron hijos, y que la vida y la muerte están cerca. Su presencia contiene a todo el sistema familiar.",
+    preguntas:["¿Qué relación tuviste con ellos, o qué te cuentan de ellos?","¿Cuál es el legado que te dejaron?"] },
+  { n:11, nombre:"Linaje femenino", p:1,
+    texto:"Lo femenino carga con mandatos heredados: ser tranquila, cuidadora, complaciente, buena en todo. Pero también es una cualidad receptiva y cálida capaz de sostener y parir vida, presente en mujeres y en hombres. Revisa qué patrones femeninos recibiste y cómo te relacionas con ellos.",
+    preguntas:["¿Qué patrones femeninos has heredado?","¿Te sientes fuerte para sostener y cuidar lo que creas?"] },
+  { n:12, nombre:"Linaje masculino", p:1,
+    texto:"Lo masculino sano es estructura: el orden que da seguridad para que la vida se propague. Esta carta te invita a distinguir qué del modelo heredado te sirve y qué ya no, y a observar los patrones masculinos que llegaron a ti desde hombres o mujeres de tu familia.",
+    preguntas:["¿Te es útil el modelo masculino que heredaste?","¿Cómo afectan esos patrones tu vida hoy?"] },
+
+  { n:13, nombre:"Linaje dañado", p:2,
+    texto:"Una parte de tu árbol duele, está seca o fue olvidada. El desafío no es borrarla sino decirle sí e integrarla; solo así te sentirás completa/o. Aunque no conozcas a una de tus ramas, puedes agradecer la vida que viene de ella.",
+    preguntas:["¿Qué lado de tu familia te cuesta más mirar?","¿Se omitió parte de la historia familiar?","¿Hay equilibrio entre lo femenino y lo masculino en tu árbol?"] },
+  { n:14, nombre:"Secretos", p:2,
+    texto:"Los secretos familiares son un peso invisible: se cargan sin poder nombrarlos y terminan enfermando. Mirar la verdad, agradecer a los ancestros y devolverles aquello que no te pertenece permite vivir sin ocultar nada que luego intoxique.",
+    preguntas:["¿Conoces algún secreto de tu familia y sus consecuencias?","¿Guardas tú algún secreto?"] },
+  { n:15, nombre:"Lealtades", p:2,
+    texto:"Frases como «en mi familia somos pobres pero honrados» funcionan como sentencias que limitan. Por lealtad al clan repetimos la historia y soportamos mandatos contradictorios. Obsérvalos y decide cuáles te sirven hoy; transforma los que no.",
+    preguntas:["¿Qué «sentencias» familiares han encarcelado tu vida?","¿Cuáles son útiles y buenas para ti hoy?"] },
+  { n:16, nombre:"Abusos", p:2,
+    texto:"Abusar es corromper la esencia del otro, y deja huella tanto en quien lo sufre como en quien lo comete. El patrón se repite entre generaciones hasta que alguien dice «basta» y decide repararlo. Sanar libera a quien lo trabaja y a quienes vienen después.",
+    preguntas:["¿Hay patrones de abuso en tu historia familiar?","¿Qué necesitas para poner un límite y cuidarte?"],
+    cuidado: CUIDADO_ABUSO },
+  { n:17, nombre:"Enfermedad", p:2,
+    texto:"El cuerpo expresa lo que no se dice: las emociones no resueltas se alojan en los órganos. A veces la enfermedad también es lealtad a un mandato familiar. Mirarla como mensajera te permite preguntar qué quiere enseñarte, sin resignarte.",
+    preguntas:["¿Hay un malestar que estás pasando por alto?","¿Cómo se marca la historia familiar en tu cuerpo?"],
+    cuidado: "Esta carta es simbólica: ante cualquier síntoma físico, consulta a un profesional de la salud." },
+  { n:18, nombre:"Excluido", p:2,
+    texto:"Lo que tu árbol rechazó vive en algún descendiente, y lo que rechazas te persigue. Dejar de juzgar e integrar a quienes fueron expulsados corta la repetición de la historia.",
+    preguntas:["¿Qué comportamiento o persona te provoca fuerte rechazo?","¿Cómo podrías darle un lugar a los excluidos?"] },
+  { n:19, nombre:"Dobles", p:2,
+    texto:"Fechas, nombres o vocaciones que se repiten indican que resuenas con un ancestro y cargas parte de su información. Se puede ser doble por duplicación, repitiendo su programa, o por reparación, transformándolo en algo sano.",
+    preguntas:["¿Reconoces a un doble en tu árbol? ¿Por nombre, nacimiento, concepción o muerte?","¿Eres doble por duplicación o por reparación?"] },
+  { n:20, nombre:"Yacente", p:2,
+    texto:"Una muerte inesperada, traumática o sin duelo puede quedar como un «fantasma» familiar que alguien nuevo carga por lealtad: cansancio sin razón, apatía, poca gana de vivir. Hacer el duelo permite dejar ir y honrar a esa alma, y tomar la vida propia.",
+    preguntas:["¿Reconoces esta posibilidad en ti?","¿Estás dispuesta/o a hacer el duelo para honrar a quien partió?"],
+    cuidado: CUIDADO_DUELO },
+  { n:21, nombre:"Villano", p:2,
+    texto:"El villano es quien causó daño y pasó a la historia como «el malo». Con frecuencia es un chivo expiatorio que expresa lo que la familia no se permite. Comprender el contexto con mirada amplia, sin tomar partido, permite devolverle su lugar y su dignidad.",
+    preguntas:["¿Quién es el villano de tu familia y qué encarna que el clan no se permite?","¿Qué cambia si lo miras sin rabia?"] },
+  { n:22, nombre:"Mártir", p:2,
+    texto:"Cargar todo el costal de secretos y pesos del árbol creyendo que así salvas a la tribu termina agotándote. Pretender corregir lo que hicieron los ancestros es un acto de arrogancia. Hazte cargo solo de lo que te toca.",
+    preguntas:["¿Qué pesos del árbol estás cargando?","¿Qué pasaría si los dejaras?"] },
+  { n:23, nombre:"Marginarse", p:2,
+    texto:"Alejarte de todo puede aliviar por un tiempo, pero lo que no integras te sigue. Cortar o quemar las ramas no resuelve el dolor. La invitación es agradecer a tu árbol, transmutar lo denso y volver a la tierra sintiéndote parte.",
+    preguntas:["¿De qué o de quién te has alejado para no sentir?","¿Qué necesitaría integrarse para que dejes de huir?"] },
+  { n:24, nombre:"Confusión", p:2,
+    texto:"Al conocer hechos o personas ocultas en tu familia, la información abruma y la mente racional no logra ordenarla. No es momento de decidir nada: respira, baja el ritmo y deja que todo decante. La comprensión llegará.",
+    preguntas:["¿Qué información reciente te dejó sin saber qué hacer?","¿Qué necesitas para darte tiempo?"] },
+
+  { n:25, nombre:"Confiar", p:3,
+    texto:"Confiar es sembrar aun en la sequía, con la certeza de que la lluvia vendrá. Es un acto de fe: lo que hoy no comprendes encontrará su sentido. No gastes tus fuerzas en la rabia o en entender solo con la razón.",
+    preguntas:["¿Qué te cuesta soltar para poder confiar?","¿Qué te sostiene cuando todo está oscuro?"] },
+  { n:26, nombre:"Tomar consciencia", p:3,
+    texto:"Al trabajar tu historia, el universo comienza a entregarte señales: sueños, intuiciones, coincidencias. Atiende al cuerpo, a las emociones y a los pensamientos recurrentes, porque son mensajes de tus ancestros sobre tu lugar en la trama.",
+    preguntas:["¿Has soñado con tu familia últimamente?","¿Qué situaciones se repiten en tu vida?"] },
+  { n:27, nombre:"Ser valientes", p:3,
+    texto:"Valentía no es dureza: es atreverse a mirar y actuar aun con miedo. Salirse del esquema familiar puede sentirse como perder el amor del clan, pero tu tribu quiere verte libre. Mirar con ojos de amor, sin juzgar, ya es un acto valiente.",
+    preguntas:["¿Qué te daría miedo cambiar si supieras que no pierdes el amor de tu familia?","¿Qué cadena quieres romper?"] },
+  { n:28, nombre:"Limpiar el corazón", p:3,
+    texto:"Es hora de despejar amarres y bloqueos, como se limpia una casa: reciclar lo útil, guardar en tu altar lo sagrado y soltar la basura que te heredaron. Conservarlo todo no deja espacio a lo nuevo.",
+    preguntas:["¿Qué de lo que heredaste ya no te sirve?","¿Qué quieres llevar en el corazón?"] },
+  { n:29, nombre:"Abraza a tu niña/o interior", p:3,
+    texto:"Tu niña o niño interior aparece cuando te sientes vulnerable, rabiosa/o o desamparada/o. Hoy te toca cuidarle tú, en lugar de esperar que otros resuelvan lo que faltó en la infancia. Mírale y dile que ya creciste, que ya puedes cuidarle.",
+    preguntas:["¿Qué necesitaba esa niña o niño y no recibió?","¿Qué le dirías hoy?"] },
+  { n:30, nombre:"Justicia", p:3,
+    texto:"Ser justa/o contigo es un acto de valentía y amor propio: ver con los ojos abiertos, hablar con honestidad y cortar los lazos y fantasmas que te habitan. Defiende el territorio que ganaste con tu trabajo interior; exige lo tuyo y entrega lo que no te corresponde sostener.",
+    preguntas:["¿Dónde necesitas ocupar tu lugar?","¿Qué debes dejar de sostener?"] },
+  { n:31, nombre:"Equilibrar", p:3,
+    texto:"Tu árbol te pide no tomar partido entre linajes, ni entre mamá y papá. Integra ambas energías, lo femenino y lo masculino, sin que una opaque a la otra. Camina sobre la cuerda floja con una rama de tu propio árbol como balancín.",
+    preguntas:["¿A qué lado de tu árbol le das más valor?","¿Vives por igual tu lado femenino y masculino?"] },
+  { n:32, nombre:"Revisión de lazos", p:3,
+    texto:"Algunos vínculos te revitalizan, otros te drenan y otros parecen imposibles de sanar pero tampoco puedes dejar. Mira tu tejido familiar completo: qué piezas se unen con gracia, cuáles están lejos y qué hilo las une. Incluye a todos para completar el cuadro.",
+    preguntas:["¿Qué mandatos te acercan o alejan de ciertas personas?","¿Falta alguna pieza en tu rompecabezas: un excluido, una pérdida, un villano?"] },
+  { n:33, nombre:"Contactarse", p:3,
+    texto:"Cuando buscas tus raíces, ellas responden con señales: sueños, intuiciones, palabras de tus padres que te permiten reconocer a bisabuelos o a esa tía que no conociste. Estás abierta/o a recibir su información.",
+    preguntas:["¿Has sentido conexión especial con algún miembro, vivo o fallecido?","¿Estás dispuesta/o a recibir lo que quieran decirte?"] },
+  { n:34, nombre:"Reparar", p:3,
+    texto:"Conociendo las trampas del árbol llega el momento de reparar, pero sin pretender sanar a todo el clan: cada quien es responsable de su historia. Reparar es hacerse consciente de las formas poco sanas en que te implicaste y buscar una solución que beneficie a todos.",
+    preguntas:["¿Qué asunto pide ser reparado hoy?","¿Qué acción concreta te corresponde: arreglar, compensar, enmendar, restaurar?"] },
+  { n:35, nombre:"Devolver", p:3,
+    texto:"Sanar también es devolver a su dueño lo que no te pertenece: dolores, enfermedades, manías, relaciones tóxicas, profesiones heredadas. Agradece el «préstamo» y dile a tu árbol que ya no lo necesitas y que te bendiga para seguir libre.",
+    preguntas:["¿Qué cargas que no son tuyas?","¿Puedes devolverlo sin culpa ni rabia?"] },
+
+  { n:36, nombre:"Resignificar", p:4,
+    texto:"Lo que viviste, por duro que fuera, formaba parte de lo que tenía que ser. Resignificar los lazos no es cortarlos ni idealizarlos, sino darles su espacio, de adulta/o a adulta/o, agradeciendo lo recibido y transformando el regalo en algo útil para todos.",
+    preguntas:["¿Qué lazo necesitas mirar con ojos nuevos?","¿Qué regalo de tu historia puedes transformar?"] },
+  { n:37, nombre:"Agradecer", p:4,
+    texto:"Tu árbol tiene cicatrices, raíces firmes, partes podridas, hojas vivas y flores. Mirarlo completo solo puede volverte agradecida. Dedica un momento cada día a visualizarlo envuelto en luz dorada, inclinar la cabeza y decir: gracias, gracias, gracias.",
+    preguntas:["¿Qué le agradeces hoy a tu linaje?","¿A quién quieres nombrar en tu gratitud?"] },
+  { n:38, nombre:"Volver a mí", p:4,
+    texto:"El alma del clan no juzga: sabe que todo es perfecto. Tras el trabajo ya no te implicas en asuntos ajenos, no eres leal a relaciones tóxicas, no buscas aprobación. Liberas a tu ser esencial, y al liberarte, liberas a tu clan.",
+    preguntas:["¿Qué falta por enterrar para sentirte liviana/o?","¿Dónde sientes que tu energía fluye limpia?"] },
+  { n:39, nombre:"Ancestros", p:4,
+    texto:"No eres una isla ni un solo árbol: eres un bosque. En ti viven todos tus ancestros y la semilla de una nueva humanidad. Reconocer al menos siete generaciones anteriores es honrarlas y tomar su fuerza para la vida.",
+    preguntas:["¿Qué ancestro quieres honrar hoy?","¿Cómo puedes honrarlos viviendo bien?"] },
+  { n:40, nombre:"Somos uno", p:4,
+    texto:"Tras tomar a tus padres en el corazón, integrar excluidos y devolver el dolor a sus dueños, puedes fluir con la vida como parte del todo. Mira el mundo como tu gran familia: la tierra, la montaña, el mar. Un ciclo termina y otro comienza.",
+    preguntas:["¿Cómo sientes tu pertenencia al todo?","¿Qué ciclo se cierra y cuál empieza?"] }
+];
+
+const TIRADAS = {
+  nucleo: {
+    nombre: "Núcleo familiar",
+    desc: "Observa lealtades, patrones, exclusiones y nivel de vínculo con tu madre y tu padre en este momento. Se sacan tres cartas y una cuarta que corona la tirada.",
+    filas: [[3], [0, 2, 1]],
+    posiciones: [
+      { etiqueta: "Madre", guia: "La energía de tu madre." },
+      { etiqueta: "Padre", guia: "La energía de tu padre." },
+      { etiqueta: "Tú", guia: "La energía que tú representas en esta trama." },
+      { etiqueta: "El movimiento hacia el bienestar", guia: "El movimiento que ayuda a lograr bienestar en esta situación.",
+        extra: "Puedes ponerla en tu altar, llevarla contigo o escribir lo que te quedó de ella y dejarlo bajo la almohada al menos 7 días. Los procesos del alma toman su tiempo: sé dulce contigo y con los demás." }
+    ],
+    cierre: "Agradece a las energías de tu madre y tu padre, y a tu Alma Familiar por hacerse presente hoy."
+  },
+  contexto: {
+    nombre: "Contextualización",
+    desc: "Para comprender dónde estás hoy respecto de tu sistema familiar: una carta para el escenario y otra para tu energía.",
+    filas: [[0, 1]],
+    posiciones: [
+      { etiqueta: "Escenario", guia: "El contexto en el que te mueves hoy." },
+      { etiqueta: "Tu energía hoy", guia: "La energía con la que te mueves hoy." }
+    ],
+    sintesis: "Reflexiona cómo dialogan ambas cartas. ¿Estás cómoda/o con lo que te muestran? Si no, ¿qué necesitas hacer tú para cambiar tu actitud o tu escenario?",
+    cierre: "Agradece a tu sistema familiar por sus mensajes."
+  },
+  trampa: {
+    nombre: "La trampa y el regalo",
+    desc: "Para ver las ataduras y los dones que tu árbol te entrega. Pide a tus ancestros que te muestren la trampa y luego el regalo.",
+    filas: [[0, 1]],
+    posiciones: [
+      { etiqueta: "La trampa", guia: "La trampa en la que hoy estás inserta/o. Ve cómo el mensaje se ajusta a tu vida." },
+      { etiqueta: "El regalo", guia: "La herramienta que ya posees para trascender esa energía y dirigirte a mayor bienestar y consciencia." }
+    ],
+    cierre: "Guarda los mensajes en tu corazón."
+  },
+  dia: {
+    nombre: "Mensaje del día",
+    desc: "Una carta para meditar. Puedes hacerlo a diario, cada semana o cada mes: lo importante es que sea un momento sagrado de conexión con tu árbol.",
+    filas: [[0]],
+    posiciones: [
+      { etiqueta: "Tu mensaje", guia: "El mensaje de tu Alma Tribal para hoy." }
+    ],
+    cierre: "Agradece a tu árbol, a tu clan y a ti por este momento."
+  }
+};
+
+/* ============ Estado y utilidades ============ */
+let tiradaActual = "nucleo";
+let ocupado = false;
+
+function mezclar(n) {
+  const a = Array.from({ length: n }, (_, i) => i);
+  const buf = new Uint32Array(n);
+  (window.crypto || window.msCrypto).getRandomValues(buf);
+  for (let i = n - 1; i > 0; i--) {
+    const j = buf[i] % (i + 1);
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+const $ = id => document.getElementById(id);
+
+const dorsoSVG = `
+<svg viewBox="0 0 100 100" aria-hidden="true">
+  <g fill="none" stroke="#f0e68c" stroke-width="1.6" stroke-linecap="round">
+    <path d="M50 88 V52"/>
+    <path d="M50 66 C40 62 34 54 30 44"/>
+    <path d="M50 60 C60 56 66 48 70 38"/>
+    <path d="M50 52 C46 42 46 32 50 20"/>
+    <path d="M30 44 C26 40 24 34 24 30"/>
+    <path d="M70 38 C74 34 76 28 76 24"/>
+    <path d="M36 88 H64" />
+    <path d="M42 88 C46 82 48 80 50 78 C52 80 54 82 58 88" />
+  </g>
+  <g fill="#f0e68c"><circle cx="20" cy="18" r="1.4"/><circle cx="82" cy="14" r="1.2"/><circle cx="12" cy="52" r="1"/><circle cx="88" cy="58" r="1.4"/><circle cx="76" cy="84" r="1"/><circle cx="22" cy="80" r="1.2"/></g>
+</svg>`;
+
+function htmlCarta(idx) {
+  const t = TIRADAS[tiradaActual];
+  return `<button class="carta" id="carta-${idx}" type="button" tabindex="-1" aria-label="${t.posiciones[idx].etiqueta}: carta boca abajo">
+    <div class="carta-int">
+      <div class="cara dorso">${dorsoSVG}</div>
+      <div class="cara frente" id="frente-${idx}"></div>
+    </div>
+  </button>`;
+}
+
+function pintarMesa() {
+  const t = TIRADAS[tiradaActual];
+  const mesa = $("mesa");
+  mesa.innerHTML = t.filas.map(fila =>
+    `<div class="fila">${fila.map(idx =>
+      `<div class="hueco">${htmlCarta(idx)}<div class="etiqueta">${t.posiciones[idx].etiqueta}</div></div>`
+    ).join("")}</div>`
+  ).join("");
+  $("lectura").className = "lectura";
+  $("lectura").innerHTML = "";
+  $("descripcion").textContent = t.desc;
+  const n = t.posiciones.length;
+  $("nota").textContent = n === 1 ? "Se sacará 1 carta." : `Se sacarán ${n} cartas.`;
+  $("btnSacar").textContent = "Sacar cartas";
+  $("btnSacar").disabled = false;
+}
+
+function pintarSelector() {
+  $("selector").innerHTML = Object.entries(TIRADAS).map(([k, t]) =>
+    `<button type="button" data-k="${k}" aria-pressed="${k === tiradaActual}">${t.nombre}</button>`
+  ).join("");
+  $("selector").querySelectorAll("button").forEach(b => b.addEventListener("click", () => {
+    if (ocupado) return;
+    tiradaActual = b.dataset.k;
+    pintarSelector();
+    pintarMesa();
+  }));
+}
+
+function rellenarFrente(idx, carta) {
+  const img = CARD_IMAGES[carta.n];
+  const arte = img
+    ? `<img src="${img}" alt="${carta.nombre}">`
+    : `<span class="glifo" aria-hidden="true">${PELDANOS[carta.p].glifo}</span>`;
+  $("frente-" + idx).innerHTML =
+    `<div class="arte"><span class="num">${carta.n}</span>${arte}</div><div class="pie">${carta.nombre}</div>`;
+  const el = $("carta-" + idx);
+  el.dataset.peldano = carta.p;
+  const pos = TIRADAS[tiradaActual].posiciones[idx].etiqueta;
+  el.setAttribute("aria-label", `${pos}: ${carta.nombre}`);
+}
+
+function bloqueLectura(pos, carta, mostrarPos) {
+  const preguntas = carta.preguntas.map(q => `<li>${q}</li>`).join("");
+  return `<article class="bloque" data-peldano="${carta.p}">
+    ${mostrarPos ? `<p class="posicion">${pos.etiqueta}</p>` : ""}
+    <h2>${carta.n}. ${carta.nombre}</h2>
+    <p class="peldano">${PELDANOS[carta.p].nombre}</p>
+    ${mostrarPos ? `<p class="guia">${pos.guia}</p>` : ""}
+    <p>${carta.texto}</p>
+    <p class="guia">Para reflexionar</p>
+    <ul>${preguntas}</ul>
+    ${pos.extra ? `<p style="margin-top:12px">${pos.extra}</p>` : ""}
+    ${carta.cuidado ? `<p class="cuidado" style="margin-top:12px">${carta.cuidado}</p>` : ""}
+  </article>`;
+}
+
+function sacar() {
+  if (ocupado) return;
+  ocupado = true;
+  const t = TIRADAS[tiradaActual];
+  const btn = $("btnSacar");
+  btn.disabled = true;
+  btn.textContent = "Respira…";
+  pintarMesa();
+  btn.disabled = true;
+  btn.textContent = "Respira…";
+  $("nota").textContent = "Respira hondo tres veces mientras se revelan tus cartas.";
+
+  const orden = mezclar(CARTAS.length).slice(0, t.posiciones.length);
+  const reducido = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const pasoMs = reducido ? 50 : 1100;
+
+  orden.forEach((ci, idx) => {
+    setTimeout(() => {
+      rellenarFrente(idx, CARTAS[ci]);
+      $("carta-" + idx).classList.add("volteada");
+    }, 600 + idx * pasoMs);
+  });
+
+  const total = 600 + (orden.length - 1) * pasoMs + (reducido ? 100 : 1100);
+  setTimeout(() => {
+    const mostrarPos = t.posiciones.length > 1;
+    let html = t.posiciones.map((pos, idx) => bloqueLectura(pos, CARTAS[orden[idx]], mostrarPos)).join("");
+    if (t.sintesis) html += `<p class="cierre" style="font-style:normal;color:var(--estrella)">${t.sintesis}</p>`;
+    html += `<p class="cierre">${t.cierre}</p>`;
+    const l = $("lectura");
+    l.innerHTML = html;
+    l.classList.add("visible");
+    btn.disabled = false;
+    btn.textContent = "Sacar otra tirada";
+    $("nota").textContent = "";
+    ocupado = false;
+    l.scrollIntoView({ behavior: reducido ? "auto" : "smooth", block: "start" });
+  }, total);
+}
+
+/* ============ Fondo de estrellas ============ */
+function estrellas() {
+  const c = $("estrellas");
+  const ctx = c.getContext("2d");
+  function dibujar() {
+    c.width = window.innerWidth; c.height = window.innerHeight;
+    ctx.clearRect(0, 0, c.width, c.height);
+    const n = Math.floor((c.width * c.height) / 9000);
+    for (let i = 0; i < n; i++) {
+      const x = Math.random() * c.width, y = Math.random() * c.height;
+      const r = Math.random() * 1.4 + .3;
+      ctx.fillStyle = `rgba(233,243,238,${Math.random() * .6 + .2})`;
+      ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+  dibujar();
+  let tm;
+  window.addEventListener("resize", () => { clearTimeout(tm); tm = setTimeout(dibujar, 200); });
+}
+
+$("btnSacar").addEventListener("click", sacar);
+pintarSelector();
+pintarMesa();
+estrellas();
+</script>
+</body>
+</html>
