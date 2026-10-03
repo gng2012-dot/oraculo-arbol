@@ -44,7 +44,7 @@ body {
 }
 .estrellas { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
 main { position: relative; z-index: 1; max-width: 980px; margin: 0 auto; padding: 28px 18px 60px; }
-
+ 
 header { text-align: center; margin-bottom: 26px; }
 h1 {
   font-family: var(--mono);
@@ -56,7 +56,7 @@ h1 {
 }
 .sub { color: var(--luz); font-family: var(--mono); font-size: .85rem; letter-spacing: .12em; }
 .lema { font-style: italic; color: var(--texto-suave); margin: 14px auto 0; max-width: 34em; }
-
+ 
 .selector { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 24px 0 10px; }
 .selector button {
   font: inherit; font-size: 1.05rem; cursor: pointer;
@@ -67,9 +67,9 @@ h1 {
 .selector button:hover { border-color: var(--luz); color: var(--estrella); }
 .selector button[aria-pressed="true"] { background: var(--luz); color: #2a1048; border-color: var(--luz); font-weight: 600; }
 button:focus-visible { outline: 2px solid var(--luz); outline-offset: 3px; }
-
+ 
 .descripcion { text-align: center; max-width: 36em; margin: 0 auto 8px; color: var(--texto-suave); }
-
+ 
 details.ritual {
   max-width: 36em; margin: 14px auto 0;
   border: 1px solid rgba(224,184,74,.2); border-radius: 12px; padding: 10px 16px;
@@ -77,7 +77,7 @@ details.ritual {
 }
 details.ritual summary { cursor: pointer; color: var(--luz); }
 details.ritual ol { margin: 10px 0 4px; padding-left: 1.3em; color: var(--texto-suave); }
-
+ 
 .mesa {
   margin: 30px 0 18px;
   padding: 28px 10px 22px;
@@ -89,7 +89,7 @@ details.ritual ol { margin: 10px 0 4px; padding-left: 1.3em; color: var(--texto-
 .fila { display: flex; gap: clamp(10px, 3vw, 28px); justify-content: center; }
 .hueco { display: flex; flex-direction: column; align-items: center; gap: 10px; }
 .etiqueta { font-family: var(--mono); font-size: .78rem; color: var(--luz); text-align: center; max-width: 150px; line-height: 1.3; }
-
+ 
 .carta { width: clamp(92px, 26vw, 156px); aspect-ratio: 5 / 8; perspective: 900px; background: none; border: 0; padding: 0; cursor: default; }
 .carta-int { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform .9s cubic-bezier(.3,.7,.2,1); }
 .carta.volteada .carta-int { transform: rotateY(180deg); }
@@ -114,7 +114,7 @@ details.ritual ol { margin: 10px 0 4px; padding-left: 1.3em; color: var(--texto-
 .carta[data-peldano="2"] .arte { box-shadow: inset 0 -26px 30px -18px var(--peldano-2); }
 .carta[data-peldano="3"] .arte { box-shadow: inset 0 -26px 30px -18px var(--peldano-3); }
 .carta[data-peldano="4"] .arte { box-shadow: inset 0 -26px 30px -18px var(--peldano-4); }
-
+ 
 .acciones { text-align: center; margin: 8px 0 30px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
 .btn-sacar {
   font-family: var(--mono); font-size: 1rem; letter-spacing: .08em; cursor: pointer;
@@ -124,7 +124,7 @@ details.ritual ol { margin: 10px 0 4px; padding-left: 1.3em; color: var(--texto-
 .btn-sacar:hover { box-shadow: 0 0 40px rgba(224,184,74,.6); }
 .btn-sacar:disabled { opacity: .6; cursor: wait; box-shadow: none; }
 .nota { color: var(--texto-suave); font-size: 1rem; font-style: italic; margin: 0; }
-
+ 
 .lectura { display: none; }
 .lectura.visible { display: block; animation: aparece .8s ease both; }
 @keyframes aparece { from { opacity: 0; } to { opacity: 1; } }
@@ -148,10 +148,10 @@ details.ritual ol { margin: 10px 0 4px; padding-left: 1.3em; color: var(--texto-
 .bloque li { margin-bottom: 4px; }
 .cuidado { font-size: 1rem; border: 1px dashed rgba(224,184,74,.45); border-radius: 8px; padding: 8px 12px; color: var(--texto-suave); }
 .cierre { text-align: center; margin: 24px auto 0; max-width: 34em; font-style: italic; color: var(--luz); }
-
+ 
 footer { margin-top: 44px; font-size: .95rem; color: var(--texto-suave); text-align: center; max-width: 44em; margin-left: auto; margin-right: auto; }
 footer p { margin: 0 0 8px; }
-
+ 
 @media (prefers-reduced-motion: reduce) {
   .carta-int { transition-duration: .01s; }
   .lectura.visible { animation: none; }
@@ -166,10 +166,10 @@ footer p { margin: 0 0 8px; }
     <h1>Oráculo del Árbol Familiar</h1>
     <p class="lema">Un puente entre tú y tu Alma Tribal. Elige una tirada, respira y deja que tus ancestras y ancestros te hablen.</p>
   </header>
-
+ 
   <nav class="selector" id="selector" aria-label="Tiradas"></nav>
   <p class="descripcion" id="descripcion"></p>
-
+ 
   <details class="ritual">
     <summary>Antes de empezar</summary>
     <ol>
@@ -180,39 +180,39 @@ footer p { margin: 0 0 8px; }
       <li>Al terminar, agradece a tu familia, a tu clan, a tu árbol y a ti.</li>
     </ol>
   </details>
-
+ 
   <section class="mesa" id="mesa" aria-live="polite"></section>
-
+ 
   <div class="acciones">
     <button class="btn-sacar" id="btnSacar">Sacar cartas</button>
     <p class="nota" id="nota"></p>
   </div>
-
+ 
   <section class="lectura" id="lectura" aria-label="Interpretación"></section>
-
+ 
   <footer>
     <p>Basado en el Oráculo del Árbol Familiar, creado e ilustrado por Fen José, con textos de Paloma Pavez Riquelme. Las interpretaciones de esta app son resúmenes breves para orientar la reflexión; el mazo y su libro completo pertenecen a sus autoras.</p>
     <p>Este oráculo es una herramienta de reflexión personal y no reemplaza el acompañamiento de un profesional de la salud o de la terapia.</p>
   </footer>
 </main>
-
+ 
 <script>
 /* ============ Imágenes de las cartas ============
    Para mostrar las ilustraciones, agrega aquí data URIs o rutas por número de carta:
    CARD_IMAGES[3] = "data:image/jpeg;base64,...."
    (Solo con permiso de la autora.) */
 const CARD_IMAGES = {};
-
+ 
 const PELDANOS = {
   1: { nombre: "1º Peldaño · La Base", glifo: "🌱" },
   2: { nombre: "2º Peldaño · El Conflicto", glifo: "🥀" },
   3: { nombre: "3º Peldaño · El Trabajo", glifo: "🌿" },
   4: { nombre: "4º Peldaño · Luz", glifo: "✨" }
 };
-
+ 
 const CUIDADO_DUELO = "Si este tema te sobrepasa o sientes mucho cansancio o tristeza, busca acompañamiento profesional o de una persona de confianza.";
 const CUIDADO_ABUSO = "Si hoy vives o viviste una situación de abuso, no la trabajes sola/o: busca el apoyo de un profesional o de una red de ayuda.";
-
+ 
 /* Interpretaciones resumidas con palabras propias a partir del libro del oráculo. */
 const CARTAS = [
   { n:1, nombre:"Unión de clanes", p:1,
@@ -252,7 +252,7 @@ const CARTAS = [
   { n:12, nombre:"Linaje masculino", p:1,
     texto:"Lo masculino sano es estructura: el orden que da seguridad para que la vida se propague. Esta carta te invita a distinguir qué del modelo heredado te sirve y qué ya no, y a observar los patrones masculinos que llegaron a ti desde hombres o mujeres de tu familia.",
     preguntas:["¿Te es útil el modelo masculino que heredaste?","¿Cómo afectan esos patrones tu vida hoy?"] },
-
+ 
   { n:13, nombre:"Linaje dañado", p:2,
     texto:"Una parte de tu árbol duele, está seca o fue olvidada. El desafío no es borrarla sino decirle sí e integrarla; solo así te sentirás completa/o. Aunque no conozcas a una de tus ramas, puedes agradecer la vida que viene de ella.",
     preguntas:["¿Qué lado de tu familia te cuesta más mirar?","¿Se omitió parte de la historia familiar?","¿Hay equilibrio entre lo femenino y lo masculino en tu árbol?"] },
@@ -292,7 +292,7 @@ const CARTAS = [
   { n:24, nombre:"Confusión", p:2,
     texto:"Al conocer hechos o personas ocultas en tu familia, la información abruma y la mente racional no logra ordenarla. No es momento de decidir nada: respira, baja el ritmo y deja que todo decante. La comprensión llegará.",
     preguntas:["¿Qué información reciente te dejó sin saber qué hacer?","¿Qué necesitas para darte tiempo?"] },
-
+ 
   { n:25, nombre:"Confiar", p:3,
     texto:"Confiar es sembrar aun en la sequía, con la certeza de que la lluvia vendrá. Es un acto de fe: lo que hoy no comprendes encontrará su sentido. No gastes tus fuerzas en la rabia o en entender solo con la razón.",
     preguntas:["¿Qué te cuesta soltar para poder confiar?","¿Qué te sostiene cuando todo está oscuro?"] },
@@ -326,7 +326,7 @@ const CARTAS = [
   { n:35, nombre:"Devolver", p:3,
     texto:"Sanar también es devolver a su dueño lo que no te pertenece: dolores, enfermedades, manías, relaciones tóxicas, profesiones heredadas. Agradece el «préstamo» y dile a tu árbol que ya no lo necesitas y que te bendiga para seguir libre.",
     preguntas:["¿Qué cargas que no son tuyas?","¿Puedes devolverlo sin culpa ni rabia?"] },
-
+ 
   { n:36, nombre:"Resignificar", p:4,
     texto:"Lo que viviste, por duro que fuera, formaba parte de lo que tenía que ser. Resignificar los lazos no es cortarlos ni idealizarlos, sino darles su espacio, de adulta/o a adulta/o, agradeciendo lo recibido y transformando el regalo en algo útil para todos.",
     preguntas:["¿Qué lazo necesitas mirar con ojos nuevos?","¿Qué regalo de tu historia puedes transformar?"] },
@@ -343,7 +343,7 @@ const CARTAS = [
     texto:"Tras tomar a tus padres en el corazón, integrar excluidos y devolver el dolor a sus dueños, puedes fluir con la vida como parte del todo. Mira el mundo como tu gran familia: la tierra, la montaña, el mar. Un ciclo termina y otro comienza.",
     preguntas:["¿Cómo sientes tu pertenencia al todo?","¿Qué ciclo se cierra y cuál empieza?"] }
 ];
-
+ 
 const TIRADAS = {
   nucleo: {
     nombre: "Núcleo familiar",
@@ -389,11 +389,11 @@ const TIRADAS = {
     cierre: "Agradece a tu árbol, a tu clan y a ti por este momento."
   }
 };
-
+ 
 /* ============ Estado y utilidades ============ */
 let tiradaActual = "nucleo";
 let ocupado = false;
-
+ 
 function mezclar(n) {
   const a = Array.from({ length: n }, (_, i) => i);
   const buf = new Uint32Array(n);
@@ -404,9 +404,9 @@ function mezclar(n) {
   }
   return a;
 }
-
+ 
 const $ = id => document.getElementById(id);
-
+ 
 /* Flor de la vida: 19 círculos entrelazados dentro de dos anillos, en dorado */
 function floresDeLaVida() {
   const r = 10, c = 50, circulos = [];
@@ -432,7 +432,7 @@ function floresDeLaVida() {
   </svg>`;
 }
 const dorsoSVG = floresDeLaVida();
-
+ 
 function htmlCarta(idx) {
   const t = TIRADAS[tiradaActual];
   return `<button class="carta" id="carta-${idx}" type="button" tabindex="-1" aria-label="${t.posiciones[idx].etiqueta}: carta boca abajo">
@@ -442,7 +442,7 @@ function htmlCarta(idx) {
     </div>
   </button>`;
 }
-
+ 
 function pintarMesa() {
   const t = TIRADAS[tiradaActual];
   const mesa = $("mesa");
@@ -459,7 +459,7 @@ function pintarMesa() {
   $("btnSacar").textContent = "Sacar cartas";
   $("btnSacar").disabled = false;
 }
-
+ 
 function pintarSelector() {
   $("selector").innerHTML = Object.entries(TIRADAS).map(([k, t]) =>
     `<button type="button" data-k="${k}" aria-pressed="${k === tiradaActual}">${t.nombre}</button>`
@@ -471,7 +471,7 @@ function pintarSelector() {
     pintarMesa();
   }));
 }
-
+ 
 function rellenarFrente(idx, carta) {
   const img = CARD_IMAGES[carta.n];
   const arte = img
@@ -484,7 +484,7 @@ function rellenarFrente(idx, carta) {
   const pos = TIRADAS[tiradaActual].posiciones[idx].etiqueta;
   el.setAttribute("aria-label", `${pos}: ${carta.nombre}`);
 }
-
+ 
 function bloqueLectura(pos, carta, mostrarPos) {
   const preguntas = carta.preguntas.map(q => `<li>${q}</li>`).join("");
   return `<article class="bloque" data-peldano="${carta.p}">
@@ -499,7 +499,7 @@ function bloqueLectura(pos, carta, mostrarPos) {
     ${carta.cuidado ? `<p class="cuidado" style="margin-top:12px">${carta.cuidado}</p>` : ""}
   </article>`;
 }
-
+ 
 function sacar() {
   if (ocupado) return;
   ocupado = true;
@@ -511,18 +511,18 @@ function sacar() {
   btn.disabled = true;
   btn.textContent = "Respira…";
   $("nota").textContent = "Respira hondo tres veces mientras se revelan tus cartas.";
-
+ 
   const orden = mezclar(CARTAS.length).slice(0, t.posiciones.length);
   const reducido = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const pasoMs = reducido ? 50 : 1100;
-
+ 
   orden.forEach((ci, idx) => {
     setTimeout(() => {
       rellenarFrente(idx, CARTAS[ci]);
       $("carta-" + idx).classList.add("volteada");
     }, 600 + idx * pasoMs);
   });
-
+ 
   const total = 600 + (orden.length - 1) * pasoMs + (reducido ? 100 : 1100);
   setTimeout(() => {
     const mostrarPos = t.posiciones.length > 1;
@@ -539,7 +539,7 @@ function sacar() {
     l.scrollIntoView({ behavior: reducido ? "auto" : "smooth", block: "start" });
   }, total);
 }
-
+ 
 /* ============ Fondo de estrellas ============ */
 function estrellas() {
   const c = $("estrellas");
@@ -559,7 +559,7 @@ function estrellas() {
   let tm;
   window.addEventListener("resize", () => { clearTimeout(tm); tm = setTimeout(dibujar, 200); });
 }
-
+ 
 $("btnSacar").addEventListener("click", sacar);
 pintarSelector();
 pintarMesa();
@@ -567,3 +567,4 @@ estrellas();
 </script>
 </body>
 </html>
+ 
